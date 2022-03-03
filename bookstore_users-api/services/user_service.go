@@ -57,3 +57,8 @@ func PartialUpdateUser(user users.User) (*users.User, *errors.RestErr) {
 	}
 	return current, nil
 }
+
+func DeleteUser(id int64) *errors.RestErr {
+	user := &users.User{Id: id}
+	return user.Delete()
+}
