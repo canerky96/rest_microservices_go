@@ -7,10 +7,19 @@ import (
 )
 
 var (
-	UsersService usersService = usersService{}
+	UsersService usersServiceInterface = &usersService{}
 )
 
 type usersService struct {
+}
+
+type usersServiceInterface interface {
+	GetUser(int64) (*users.User, *errors.RestErr)
+	CreateUser(users.User) (*users.User, *errors.RestErr)
+	UpdateUser(users.User) (*users.User, *errors.RestErr)
+	PartialUpdateUser(users.User) (*users.User, *errors.RestErr)
+	DeleteUser(int64) *errors.RestErr
+	Search(string) (users.Users, *errors.RestErr)
 }
 
 func (s *usersService) GetUser(userId int64) (*users.User, *errors.RestErr) {

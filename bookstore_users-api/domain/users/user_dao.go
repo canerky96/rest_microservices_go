@@ -2,6 +2,7 @@ package users
 
 import (
 	"bookstore_users-api/datasources/mysql/users_db"
+	"bookstore_users-api/logger"
 	"bookstore_users-api/utils/date_utils"
 	"bookstore_users-api/utils/errors"
 	"fmt"
@@ -9,7 +10,7 @@ import (
 
 const (
 	queryInsertUser       = "INSERT INTO users(first_name, last_name, email, date_created, status, password) VALUES(?, ?, ?, ?, ?, ?);"
-	queryGetUser          = "SELECT id, first_name, last_name, email, date_created FROM users WHERE id=?;"
+	queryGetUser          = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE id=?;"
 	queryUpdateUser       = "UPDATE users SET first_name=?, last_name=?, email=? WHERE id=?;"
 	queryDeleteUSer       = "DELETE FROM users WHERE id=?"
 	queryFindUserByStatus = "SELECT id, first_name, last_name, email, date_created FROM users WHERE status=?;"
@@ -18,14 +19,15 @@ const (
 func (user *User) Get() *errors.RestErr {
 	stmt, err := users_db.Client.Prepare(queryGetUser)
 	if err != nil {
-		return errors.NewInternalServerError(err.Error())
+		logger.Error("Error when trying to prepare get user statement", err)
+		return errors.NewInternalServerError("database error")
 	}
 	defer stmt.Close()
 
 	result := stmt.QueryRow(user.Id)
-	if err := result.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated); err != nil {
-		fmt.Println(err)
-		return errors.NewInternalServerError(fmt.Sprintf("error when trying to get user %d", user.Id))
+	if err := result.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.Status); err != nil {
+		logger.Error("Error while trying to get user by id", err)
+		return errors.NewInternalServerError("database error")
 	}
 
 	return nil
