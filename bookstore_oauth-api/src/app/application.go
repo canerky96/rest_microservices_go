@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bookstore_oauth-api/clients/cassandra"
 	"bookstore_oauth-api/src/domain/access_token"
 	"bookstore_oauth-api/src/http"
 	"bookstore_oauth-api/src/repository"
@@ -12,6 +13,11 @@ var (
 )
 
 func StartApplication() {
+	session, dbErr := cassandra.GetSession()
+	if dbErr != nil {
+		panic(dbErr)
+	}
+	session.Close()
 	dbRepository := repository.NewRepository()
 	atService := access_token.NewService(dbRepository)
 	atHandler := http.NewHandler(atService)
